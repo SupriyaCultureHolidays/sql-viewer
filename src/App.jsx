@@ -1,0 +1,166 @@
+import { useState } from "react";
+import { tables, tableIcons, statusColors, tableKeys, tableTypes } from "./data";
+import "./App.css";
+
+const STATUS_COLS = new Set(["status", "order_status", "payment_status"]);
+
+function Badge({ value, onClick, copied }) {
+  const color = statusColors[value] ?? "#94a3b8";
+  return (
+    <span className={`badge badge-copy ${copied ? "badge-copied" : ""}`} onClick={onClick} style={{ background: color + "22", color, border: `1px solid ${color}55` }} title="Click to copy">
+      {copied ? "✓" : value}
+    </span>
+  );
+}
+
+function TableView({ name }) {
+  const { columns, rows } = tables[name];
+  const { pk, fk } = tableKeys[name];
+  const types = tableTypes[name];
+  const [copied, setCopied] = useState("");
+  const [copiedCol, setCopiedCol] = useState("");
+  const [copiedBadge, setCopiedBadge] = useState("");
+
+  function copyBadge(val) {
+    navigator.clipboard.writeText(val);
+    setCopiedBadge(val);
+    setTimeout(() => setCopiedBadge(""), 1500);
+  }
+
+  const queries = [
+    { label: "SELECT *", sql: `SELECT * FROM ${name};` },
+    { label: "COUNT", sql: `SELECT COUNT(*) FROM ${name};` },
+    { label: "LIMIT 10", sql: `SELECT * FROM ${name} LIMIT 10;` },
+    { label: "DESC", sql: `DESC ${name};` },
+  ];
+
+  function copy(sql) {
+    navigator.clipboard.writeText(sql);
+    setCopied(sql);
+    setTimeout(() => setCopied(""), 1500);
+  }
+
+  function copyCol(col) {
+    navigator.clipboard.writeText(col);
+    setCopiedCol(col);
+    setTimeout(() => setCopiedCol(""), 1500);
+  }
+
+  return (
+    <div className="table-view">
+      <div className="table-header">
+        <h2>{tableIcons[name]} {name}</h2>
+        <span className="meta">{columns.length} columns · {Object.keys(tables).indexOf(name) + 1} of {Object.keys(tables).length} tables</span>
+      </div>
+
+      <div className="quick-queries">
+        {queries.map((q) => (
+          <button
+            key={q.label}
+            className={`query-btn ${copied === q.sql ? "copied" : ""}`}
+            onClick={() => copy(q.sql)}
+            title={q.sql}
+          >
+            {copied === q.sql ? "✓ Copied!" : q.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="sql-box">
+        <code>SELECT * FROM {name};</code>
+      </div>
+
+      <div className="scroll-wrap">
+        <table>
+          <thead>
+            <tr>
+              {columns.map((col) => {
+                const isPK = col === pk;
+                const isFKRef = fk[col];
+                return (
+                  <th key={col} className="th-copy" onClick={() => copyCol(col)} title="Click to copy">
+                    <div className="th-top">
+                      {isPK && <span className="key-badge pk" title="Primary Key — unique identifier for each row">PK</span>}
+                      {isFKRef && <span className="key-badge fk" title={`Foreign Key → ${isFKRef}`}>FK</span>}
+                      {col}
+                      <span className={`th-badge ${copiedCol === col ? "th-badge--show" : ""}`}>
+                        {copiedCol === col ? "✓" : "⎘"}
+                      </span>
+                    </div>
+                    {types[col] && <div className={`type-chip type-${types[col].toLowerCase()}`}>{types[col]}</div>}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i}>
+                {columns.map((col) => {
+                  const val = row[col];
+                  const isNull = val === null || val === undefined;
+                  const isStatus = STATUS_COLS.has(col) && !isNull;
+                  return (
+                    <td key={col}>
+                      {isNull ? (
+                        <span className="null">NULL</span>
+                      ) : isStatus ? (
+                        <Badge value={String(val)} onClick={() => copyBadge(String(val))} copied={copiedBadge === String(val)} />
+                      ) : (
+                        String(val)
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="note">⚡ Showing 5 sample rows — run queries in your MySQL client</p>
+    </div>
+  );
+}
+
+export default function App() {
+  const tableNames = Object.keys(tables);
+  const [active, setActive] = useState(tableNames[0]);
+  const [search, setSearch] = useState("");
+
+  const filtered = tableNames.filter((t) => t.includes(search.toLowerCase()));
+
+  return (
+    <div className="app">
+      <aside className="sidebar">
+        <div className="sidebar-top">
+          <div className="brand">🗄️ ECOMMERCE DB</div>
+          <input
+            className="search"
+            placeholder="Search tables..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <nav>
+          {filtered.map((name) => (
+            <button
+              key={name}
+              className={`nav-item ${active === name ? "active" : ""}`}
+              onClick={() => setActive(name)}
+            >
+              <span className="icon">{tableIcons[name]}</span>
+              <span className="tname">{name}</span>
+              <span className="col-count">{tables[name].columns.length}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">{tableNames.length} tables total</div>
+      </aside>
+
+      <main className="main">
+        <TableView key={active} name={active} />
+      </main>
+    </div>
+  );
+}
