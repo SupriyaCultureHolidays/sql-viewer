@@ -65,15 +65,15 @@ nav::-webkit-scrollbar-thumb { background: #1e2535; border-radius: 4px; }
   padding: 7px 12px;
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #cbd5e1;
   font-size: 12.5px;
   cursor: pointer;
   text-align: left;
   transition: background 0.15s, color 0.15s;
   border-radius: 0;
 }
-.nav-item:hover { background: #1e2535; color: #e2e8f0; }
-.nav-item.active { background: #7c3aed22; color: #a78bfa; border-left: 2px solid #7c3aed; }
+.nav-item:hover { background: #1e2535; color: #f1f5f9; }
+.nav-item.active { background: #7c3aed22; color: #c4b5fd; border-left: 2px solid #7c3aed; }
 
 .icon { font-size: 14px; flex-shrink: 0; }
 .tname { flex: 1; }
@@ -334,11 +334,11 @@ td {
 
   nav::-webkit-scrollbar-thumb { background: #e2e8f0; }
 
-  .nav-item { color: #64748b; }
-  .nav-item:hover { background: #f1f5f9; color: #1e293b; }
-  .nav-item.active { background: #ede9fe; color: #7c3aed; border-left: 2px solid #7c3aed; }
-  .nav-item.active .col-count { background: #ddd6fe; color: #7c3aed; }
-  .col-count { background: #f1f5f9; color: #94a3b8; }
+  .nav-item { color: #334155; }
+  .nav-item:hover { background: #f1f5f9; color: #0f172a; }
+  .nav-item.active { background: #ede9fe; color: #6d28d9; border-left: 2px solid #7c3aed; }
+  .nav-item.active .col-count { background: #ddd6fe; color: #6d28d9; }
+  .col-count { background: #e2e8f0; color: #64748b; }
 
   .sidebar-footer { color: #94a3b8; border-top: 1px solid #e2e8f0; }
 
