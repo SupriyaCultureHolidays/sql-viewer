@@ -18,20 +18,6 @@ function MobileCardView({ name }) {
   const { pk, fk } = tableKeys[name];
   const types = tableTypes[name];
   const [copiedBadge, setCopiedBadge] = useState("");
-  const [copied, setCopied] = useState("");
-
-  const queries = [
-    { label: "SELECT *", sql: `SELECT * FROM ${name};` },
-    { label: "COUNT", sql: `SELECT COUNT(*) FROM ${name};` },
-    { label: "LIMIT 10", sql: `SELECT * FROM ${name} LIMIT 10;` },
-    { label: "DESC", sql: `DESC ${name};` },
-  ];
-
-  function copy(sql) {
-    navigator.clipboard.writeText(sql);
-    setCopied(sql);
-    setTimeout(() => setCopied(""), 1500);
-  }
 
   function copyBadge(val) {
     navigator.clipboard.writeText(val);
@@ -45,16 +31,6 @@ function MobileCardView({ name }) {
         <span className="mobile-title">{tableIcons[name]} {name}</span>
         <span className="mobile-meta">{columns.length} cols · {rows.length} rows</span>
       </div>
-
-      <div className="quick-queries">
-        {queries.map((q) => (
-          <button key={q.label} className={`query-btn ${copied === q.sql ? "copied" : ""}`} onClick={() => copy(q.sql)}>
-            {copied === q.sql ? "✓" : q.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="sql-box"><code>SELECT * FROM {name};</code></div>
 
       <div className="mobile-cards">
         {rows.map((row, i) => (
