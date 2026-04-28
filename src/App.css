@@ -171,9 +171,9 @@ thead { background: #161b27; }
 th {
   padding: 10px 14px;
   text-align: left;
-  color: #64748b;
-  font-weight: 600;
-  font-size: 11px;
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 1px solid #1e2535;
@@ -206,6 +206,7 @@ th {
   letter-spacing: 0.4px;
   text-transform: uppercase;
   white-space: nowrap;
+  opacity: 0.75;
 }
 .type-int      { background: #1e3a5f; color: #60a5fa; }
 .type-varchar  { background: #1a3a2a; color: #4ade80; }
@@ -220,12 +221,13 @@ th {
 .key-badge {
   display: inline-block;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   padding: 1px 4px;
   border-radius: 3px;
   margin-right: 4px;
   vertical-align: middle;
   letter-spacing: 0.3px;
+  opacity: 0.75;
 }
 .key-badge.pk { background: #7c3aed33; color: #a78bfa; border: 1px solid #7c3aed55; }
 .key-badge.fk { background: #0ea5e933; color: #38bdf8; border: 1px solid #0ea5e955; }
@@ -442,20 +444,43 @@ td {
 
   .card-col {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
     min-width: 0;
-    flex: 0 0 42%;
+    flex: 0 0 45%;
   }
+  
+  .card-col-badges {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-wrap: wrap;
+  }
+  
   .card-col-name {
-    font-size: 11px;
-    font-weight: 600;
-    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
     text-transform: uppercase;
     letter-spacing: 0.3px;
     word-break: break-all;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
   }
+
+  .inline-badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 4px;
+    border-radius: 3px;
+    letter-spacing: 0.3px;
+    opacity: 0.5;
+  }
+  .inline-badge.pk { background: #ede9fe; color: #7c3aed; border: 1px solid #ddd6fe; }
+  .inline-badge.fk { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
 
   /* ── Type chips (light) ── */
   .type-int      { background: #dbeafe; color: #2563eb; }
@@ -474,6 +499,8 @@ td {
 
   .card-val { flex: 1; text-align: right; min-width: 0; }
   .card-val-text { font-size: 12px; color: #334155; word-break: break-word; }
+
+  .type-chip { margin-top: 0; opacity: 0.6; }
 
   .null { color: #cbd5e1; }
 

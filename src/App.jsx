@@ -45,9 +45,11 @@ function MobileCardView({ name }) {
               return (
                 <div key={col} className="card-field">
                   <div className="card-col">
-                    {isPK && <span className="key-badge pk">PK</span>}
-                    {isFKRef && <span className="key-badge fk">FK</span>}
-                    <span className="card-col-name">{col}</span>
+                    <div className="card-col-name">
+                      {col}
+                      {isPK && <span className="inline-badge pk">PK</span>}
+                      {isFKRef && <span className="inline-badge fk">FK</span>}
+                    </div>
                     {types[col] && <span className={`type-chip type-${types[col].toLowerCase()}`}>{types[col]}</span>}
                   </div>
                   <div className="card-val">
