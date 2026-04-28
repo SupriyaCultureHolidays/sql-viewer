@@ -2,7 +2,7 @@ import { useState } from "react";
 import { tables, tableIcons, statusColors, tableKeys, tableTypes } from "./data";
 import "./App.css";
 
-const STATUS_COLS = new Set(["status", "order_status", "payment_status"]);
+const STATUS_COLS = new Set(["status", "order_status", "payment_status", "payment_method", "payment_gateway"]);
 
 function Badge({ value, onClick, copied }) {
   const color = statusColors[value] ?? "#94a3b8";
@@ -118,7 +118,7 @@ function TableView({ name }) {
         </table>
       </div>
 
-      <p className="note">⚡ Showing 5 sample rows — run queries in your MySQL client</p>
+      <p className="note">⚡ Showing {rows.length} sample rows — run queries in your MySQL client</p>
     </div>
   );
 }
