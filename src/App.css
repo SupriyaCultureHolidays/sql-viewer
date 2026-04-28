@@ -277,3 +277,162 @@ td {
   font-size: 11.5px;
   color: #334155;
 }
+
+/* ── HAMBURGER (hidden on desktop) ── */
+.hamburger {
+  display: none;
+}
+
+/* ── OVERLAY ── */
+.overlay {
+  display: none;
+}
+
+/* ── MOBILE (Redmi Note 9 Pro Max ≈ 412px) ── */
+@media (max-width: 600px) {
+  body { overflow: auto; }
+
+  .app {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  /* Sidebar slides in from left as a drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 20px #00000088;
+  }
+  .sidebar--open {
+    transform: translateX(0);
+  }
+
+  /* Dim overlay behind sidebar */
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: #00000066;
+    z-index: 199;
+  }
+
+  /* Hamburger button */
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: #161b27;
+    border: 1px solid #1e2535;
+    border-radius: 8px;
+    color: #a78bfa;
+    font-size: 18px;
+    cursor: pointer;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+  }
+
+  .main {
+    padding: 14px 12px;
+    overflow-y: auto;
+    min-height: 100vh;
+  }
+
+  .table-header {
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .table-header h2 { font-size: 16px; }
+
+  .quick-queries { gap: 6px; }
+  .query-btn { padding: 5px 10px; font-size: 11px; }
+
+  .sql-box { font-size: 11px; padding: 8px 12px; }
+
+  table { font-size: 11.5px; }
+  th, td { padding: 7px 10px; }
+  td { max-width: 160px; }
+
+  .note { font-size: 11px; }
+}
+
+/* ── MOBILE CARD VIEW ── */
+@media (max-width: 600px) {
+  .mobile-view { width: 100%; }
+
+  .mobile-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .mobile-title { font-size: 15px; font-weight: 700; color: #f1f5f9; }
+  .mobile-meta  { font-size: 11px; color: #475569; }
+
+  .mobile-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+
+  .mobile-card {
+    background: #161b27;
+    border: 1px solid #1e2535;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .card-row-num {
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+    background: #0f1117;
+    border-bottom: 1px solid #1e2535;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card-field {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid #1e253588;
+    gap: 8px;
+  }
+  .card-field:last-child { border-bottom: none; }
+
+  .card-col {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    min-width: 0;
+    flex: 0 0 42%;
+  }
+  .card-col-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    word-break: break-all;
+  }
+
+  .card-val {
+    flex: 1;
+    text-align: right;
+    min-width: 0;
+  }
+  .card-val-text {
+    font-size: 12px;
+    color: #cbd5e1;
+    word-break: break-word;
+  }
+}

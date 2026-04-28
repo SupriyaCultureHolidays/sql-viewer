@@ -13,6 +13,87 @@ function Badge({ value, onClick, copied }) {
   );
 }
 
+function MobileCardView({ name }) {
+  const { columns, rows } = tables[name];
+  const { pk, fk } = tableKeys[name];
+  const types = tableTypes[name];
+  const [copiedBadge, setCopiedBadge] = useState("");
+  const [copied, setCopied] = useState("");
+
+  const queries = [
+    { label: "SELECT *", sql: `SELECT * FROM ${name};` },
+    { label: "COUNT", sql: `SELECT COUNT(*) FROM ${name};` },
+    { label: "LIMIT 10", sql: `SELECT * FROM ${name} LIMIT 10;` },
+    { label: "DESC", sql: `DESC ${name};` },
+  ];
+
+  function copy(sql) {
+    navigator.clipboard.writeText(sql);
+    setCopied(sql);
+    setTimeout(() => setCopied(""), 1500);
+  }
+
+  function copyBadge(val) {
+    navigator.clipboard.writeText(val);
+    setCopiedBadge(val);
+    setTimeout(() => setCopiedBadge(""), 1500);
+  }
+
+  return (
+    <div className="mobile-view">
+      <div className="mobile-header">
+        <span className="mobile-title">{tableIcons[name]} {name}</span>
+        <span className="mobile-meta">{columns.length} cols · {rows.length} rows</span>
+      </div>
+
+      <div className="quick-queries">
+        {queries.map((q) => (
+          <button key={q.label} className={`query-btn ${copied === q.sql ? "copied" : ""}`} onClick={() => copy(q.sql)}>
+            {copied === q.sql ? "✓" : q.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="sql-box"><code>SELECT * FROM {name};</code></div>
+
+      <div className="mobile-cards">
+        {rows.map((row, i) => (
+          <div key={i} className="mobile-card">
+            <div className="card-row-num">Row {i + 1}</div>
+            {columns.map((col) => {
+              const val = row[col];
+              const isNull = val === null || val === undefined;
+              const isStatus = STATUS_COLS.has(col) && !isNull;
+              const isPK = col === pk;
+              const isFKRef = fk[col];
+              return (
+                <div key={col} className="card-field">
+                  <div className="card-col">
+                    {isPK && <span className="key-badge pk">PK</span>}
+                    {isFKRef && <span className="key-badge fk">FK</span>}
+                    <span className="card-col-name">{col}</span>
+                    {types[col] && <span className={`type-chip type-${types[col].toLowerCase()}`}>{types[col]}</span>}
+                  </div>
+                  <div className="card-val">
+                    {isNull ? (
+                      <span className="null">NULL</span>
+                    ) : isStatus ? (
+                      <Badge value={String(val)} onClick={() => copyBadge(String(val))} copied={copiedBadge === String(val)} />
+                    ) : (
+                      <span className="card-val-text">{String(val)}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+      <p className="note">⚡ {rows.length} sample rows</p>
+    </div>
+  );
+}
+
 function TableView({ name }) {
   const { columns, rows } = tables[name];
   const { pk, fk } = tableKeys[name];
@@ -123,16 +204,35 @@ function TableView({ name }) {
   );
 }
 
+function useIsMobile() {
+  const [mobile, setMobile] = useState(() => window.innerWidth <= 600);
+  useState(() => {
+    const fn = () => setMobile(window.innerWidth <= 600);
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  });
+  return mobile;
+}
+
 export default function App() {
   const tableNames = Object.keys(tables);
   const [active, setActive] = useState(tableNames[0]);
   const [search, setSearch] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const filtered = tableNames.filter((t) => t.includes(search.toLowerCase()));
 
+  function selectTable(name) {
+    setActive(name);
+    setSidebarOpen(false);
+  }
+
   return (
     <div className="app">
-      <aside className="sidebar">
+      {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
+
+      <aside className={`sidebar ${sidebarOpen ? "sidebar--open" : ""}`}>
         <div className="sidebar-top">
           <div className="brand">🗄️ ECOMMERCE DB</div>
           <input
@@ -147,7 +247,7 @@ export default function App() {
             <button
               key={name}
               className={`nav-item ${active === name ? "active" : ""}`}
-              onClick={() => setActive(name)}
+              onClick={() => selectTable(name)}
             >
               <span className="icon">{tableIcons[name]}</span>
               <span className="tname">{name}</span>
@@ -159,7 +259,10 @@ export default function App() {
       </aside>
 
       <main className="main">
-        <TableView key={active} name={active} />
+        <button className="hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+          ☰
+        </button>
+        {isMobile ? <MobileCardView key={active} name={active} /> : <TableView key={active} name={active} />}
       </main>
     </div>
   );
