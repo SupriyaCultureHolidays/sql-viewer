@@ -334,11 +334,11 @@ td {
 
   nav::-webkit-scrollbar-thumb { background: #e2e8f0; }
 
-  .nav-item { color: #334155; }
+  .nav-item { color: #1e293b; font-weight: 600; font-size: 13px; }
   .nav-item:hover { background: #f1f5f9; color: #0f172a; }
-  .nav-item.active { background: #ede9fe; color: #6d28d9; border-left: 2px solid #7c3aed; }
+  .nav-item.active { background: #ede9fe; color: #6d28d9; border-left: 2px solid #7c3aed; font-weight: 700; }
   .nav-item.active .col-count { background: #ddd6fe; color: #6d28d9; }
-  .col-count { background: #e2e8f0; color: #64748b; }
+  .col-count { background: #e2e8f0; color: #475569; font-weight: 600; }
 
   .sidebar-footer { color: #94a3b8; border-top: 1px solid #e2e8f0; }
 
