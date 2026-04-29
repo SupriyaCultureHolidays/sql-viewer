@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { tables, tableIcons, statusColors, tableKeys, tableTypes, questions } from "./data";
+import { setupSql } from "./setupSql";
 import "./App.css";
 
 const STATUS_COLS = new Set(["status", "order_status", "payment_status", "payment_method", "payment_gateway"]);
@@ -377,6 +378,7 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeQ, setActiveQ] = useState(null);
+  const [setupCopied, setSetupCopied] = useState(false);
   const isMobile = useIsMobile();
 
   const filtered = tableNames.filter((t) => t.includes(search.toLowerCase()));
@@ -384,6 +386,26 @@ export default function App() {
   function selectTable(name) {
     setActive(name);
     setSidebarOpen(false);
+  }
+
+  function fallbackCopy(text) {
+    const el = document.createElement("textarea");
+    el.value = text;
+    el.style.cssText = "position:fixed;opacity:0;pointer-events:none";
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+  }
+
+  function copySetupCode() {
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(setupSql).catch(() => fallbackCopy(setupSql));
+    } else {
+      fallbackCopy(setupSql);
+    }
+    setSetupCopied(true);
+    setTimeout(() => setSetupCopied(false), 1500);
   }
 
   return (
@@ -418,6 +440,17 @@ export default function App() {
           })}
         </nav>
         <div className="sidebar-footer">{tableNames.length} tables total</div>
+        <div className="source-panel">
+          <button className="source-row" onClick={copySetupCode} title="Copy full SQL setup script">
+            <span className="source-label">Source Code</span>
+            <span className="source-copy-wrap">
+              <span className="source-hint">{setupCopied ? "Copied" : "SQL"}</span>
+              <span className={`source-copy-icon ${setupCopied ? "source-copy-icon--done" : ""}`} aria-hidden="true">
+                ⧉
+              </span>
+            </span>
+          </button>
+        </div>
       </aside>
 
       <main className="main">

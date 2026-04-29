@@ -49,6 +49,69 @@ body {
 }
 .search:focus { border-color: #7c3aed; }
 
+.source-panel {
+  padding: 12px;
+  border-top: 1px solid #1e2535;
+  background: linear-gradient(180deg, #171c29 0%, #141925 100%);
+  margin-top: auto;
+}
+
+.source-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #2a3347;
+  background: #0f1117;
+  color: #e2e8f0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.source-row:hover { border-color: #7c3aed; color: #c4b5fd; }
+
+.source-label {
+  flex: 1;
+}
+
+.source-copy-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.source-hint {
+  font-size: 10px;
+  color: #94a3b8;
+  background: #1e2535;
+  padding: 2px 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.source-copy-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #161b27;
+  border: 1px solid #1e2535;
+  color: #94a3b8;
+  font-size: 13px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.source-row:hover .source-copy-icon { border-color: #7c3aed; color: #c4b5fd; }
+.source-copy-icon--done { border-color: #22c55e; color: #22c55e; background: #22c55e11; }
+
 nav {
   flex: 1;
   overflow-y: auto;
@@ -585,6 +648,13 @@ td {
   .search { background: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b; }
   .search::placeholder { color: #94a3b8; }
   .search:focus { border-color: #7c3aed; }
+  .source-panel { background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .source-row { background: #ffffff; border: 1px solid #e2e8f0; color: #1e293b; }
+  .source-row:hover { border-color: #7c3aed; color: #7c3aed; }
+  .source-hint { background: #e2e8f0; color: #475569; }
+  .source-copy-icon { background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; }
+  .source-row:hover .source-copy-icon { border-color: #7c3aed; color: #7c3aed; }
+  .source-copy-icon--done { border-color: #22c55e; color: #16a34a; background: #dcfce7; }
   nav::-webkit-scrollbar-thumb { background: #e2e8f0; }
   .nav-item { color: #1e293b; font-weight: 600; font-size: 13px; }
   .nav-item:hover { background: #f1f5f9; color: #0f172a; }
