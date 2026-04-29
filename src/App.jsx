@@ -372,10 +372,9 @@ function QuestionPanel({ activeQ, onSelect }) {
   );
 }
 
-function SyntaxView() {
-  const [activeTopic, setActiveTopic] = useState(syntaxTopics[0].id);
+function SyntaxView({ activeTopic, onChangeTopic }) {
   const [copiedIdx, setCopiedIdx] = useState(null);
-  const topic = syntaxTopics.find((t) => t.id === activeTopic);
+  const topic = syntaxTopics.find((t) => t.id === activeTopic) ?? syntaxTopics[0];
 
   function copy(text, idx) {
     navigator.clipboard?.writeText(text) ?? (() => {
@@ -395,7 +394,7 @@ function SyntaxView() {
           <button
             key={t.id}
             className={`syntax-topic-btn ${activeTopic === t.id ? "active" : ""}`}
-            onClick={() => setActiveTopic(t.id)}
+            onClick={() => onChangeTopic(t.id)}
           >
             <span>{t.icon}</span> {t.title}
           </button>
@@ -435,6 +434,8 @@ export default function App() {
   const [activeQ, setActiveQ] = useState(null);
   const [setupCopied, setSetupCopied] = useState(false);
   const [sidebarSection, setSidebarSection] = useState("tables"); // "tables" | "syntax"
+  const [desktopView, setDesktopView] = useState("table"); // "table" | "cards"
+  const [activeSyntaxTopic, setActiveSyntaxTopic] = useState(syntaxTopics[0].id);
   const isMobile = useIsMobile();
 
   const filtered = tableNames.filter((t) => t.includes(search.toLowerCase()));
@@ -506,7 +507,15 @@ export default function App() {
         {sidebarSection === "syntax" && (
           <nav>
             {syntaxTopics.map((t) => (
-              <button key={t.id} className="nav-item" onClick={() => setSidebarOpen(false)}>
+              <button
+                key={t.id}
+                className={`nav-item ${activeSyntaxTopic === t.id ? "active" : ""}`}
+                onClick={() => {
+                  setActiveSyntaxTopic(t.id);
+                  setSidebarSection("syntax");
+                  setSidebarOpen(false);
+                }}
+              >
                 <span className="icon">{t.icon}</span>
                 <span className="tname">{t.title}</span>
               </button>
@@ -532,9 +541,29 @@ export default function App() {
           ☰
         </button>
         <QuestionPanel activeQ={activeQ} onSelect={setActiveQ} />
+        {!isMobile && sidebarSection === "tables" && (
+          <div className="view-switcher" role="tablist" aria-label="Data view">
+            <button
+              className={`view-btn ${desktopView === "table" ? "active" : ""}`}
+              onClick={() => setDesktopView("table")}
+              type="button"
+            >
+              Table View
+            </button>
+            <button
+              className={`view-btn ${desktopView === "cards" ? "active" : ""}`}
+              onClick={() => setDesktopView("cards")}
+              type="button"
+            >
+              Card View
+            </button>
+          </div>
+        )}
         {sidebarSection === "syntax"
-          ? <SyntaxView />
-          : isMobile ? <MobileCardView key={active} name={active} /> : <TableView key={active} name={active} />
+          ? <SyntaxView activeTopic={activeSyntaxTopic} onChangeTopic={setActiveSyntaxTopic} />
+          : isMobile || desktopView === "cards"
+            ? <MobileCardView key={active} name={active} />
+            : <TableView key={active} name={active} />
         }
       </main>
     </div>
