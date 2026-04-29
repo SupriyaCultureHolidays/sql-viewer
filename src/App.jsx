@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { tables, tableIcons, statusColors, tableKeys, tableTypes } from "./data";
+import { tables, tableIcons, statusColors, tableKeys, tableTypes, questions } from "./data";
 import "./App.css";
 
 const STATUS_COLS = new Set(["status", "order_status", "payment_status", "payment_method", "payment_gateway"]);
@@ -26,49 +26,51 @@ function MobileCardView({ name }) {
   }
 
   return (
-    <div className="mobile-view">
-      <div className="mobile-header">
+    <>
+      <div className="mobile-table-bar">
         <span className="mobile-title">{tableIcons[name]} {name}</span>
         <span className="mobile-meta">{columns.length} cols · {rows.length} rows</span>
       </div>
 
-      <div className="mobile-cards">
-        {rows.map((row, i) => (
-          <div key={i} className="mobile-card">
-            <div className="card-row-num">Row {i + 1}</div>
-            {columns.map((col) => {
-              const val = row[col];
-              const isNull = val === null || val === undefined;
-              const isStatus = STATUS_COLS.has(col) && !isNull;
-              const isPK = col === pk;
-              const isFKRef = fk[col];
-              return (
-                <div key={col} className="card-field">
-                  <div className="card-col">
-                    <div className="card-col-name">
-                      {col}
-                      {isPK && <span className="inline-badge pk">PK</span>}
-                      {isFKRef && <span className="inline-badge fk">FK</span>}
+      <div className="mobile-scroll">
+        <div className="mobile-cards">
+          {rows.map((row, i) => (
+            <div key={i} className="mobile-card">
+              <div className="card-row-num">Row {i + 1}</div>
+              {columns.map((col) => {
+                const val = row[col];
+                const isNull = val === null || val === undefined;
+                const isStatus = STATUS_COLS.has(col) && !isNull;
+                const isPK = col === pk;
+                const isFKRef = fk[col];
+                return (
+                  <div key={col} className="card-field">
+                    <div className="card-col">
+                      <div className="card-col-name">
+                        {col}
+                        {isPK && <span className="inline-badge pk">PK</span>}
+                        {isFKRef && <span className="inline-badge fk">FK</span>}
+                      </div>
+                      {types[col] && <span className={`type-chip type-${types[col].toLowerCase()}`}>{types[col]}</span>}
                     </div>
-                    {types[col] && <span className={`type-chip type-${types[col].toLowerCase()}`}>{types[col]}</span>}
+                    <div className="card-val">
+                      {isNull ? (
+                        <span className="null">NULL</span>
+                      ) : isStatus ? (
+                        <Badge value={String(val)} onClick={() => copyBadge(String(val))} copied={copiedBadge === String(val)} />
+                      ) : (
+                        <span className="card-val-text">{String(val)}</span>
+                      )}
+                    </div>
                   </div>
-                  <div className="card-val">
-                    {isNull ? (
-                      <span className="null">NULL</span>
-                    ) : isStatus ? (
-                      <Badge value={String(val)} onClick={() => copyBadge(String(val))} copied={copiedBadge === String(val)} />
-                    ) : (
-                      <span className="card-val-text">{String(val)}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ))}
+                );
+              })}
+            </div>
+          ))}
+        </div>
+        <p className="note">⚡ {rows.length} sample rows</p>
       </div>
-      <p className="note">⚡ {rows.length} sample rows</p>
-    </div>
+    </>
   );
 }
 
@@ -192,11 +194,126 @@ function useIsMobile() {
   return mobile;
 }
 
+function QuestionPanel({ activeQ, onSelect, activeTable }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  function handleSelect(q) {
+    onSelect(q);
+    setOpen(false);
+    setSearch("");
+    setShowAnswer(false);
+  }
+
+  function handleClear() {
+    onSelect(null);
+    setShowAnswer(false);
+  }
+
+  function copyAnswer() {
+    const text = activeQ?.answer;
+    if (!text) return;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  function fallbackCopy(text) {
+    const el = document.createElement("textarea");
+    el.value = text;
+    el.style.cssText = "position:fixed;opacity:0";
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+  }
+
+  const filtered = questions.filter(
+    (q) => q.text.toLowerCase().includes(search.toLowerCase()) || q.id.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="qpanel">
+      <button className="qpanel-toggle" onClick={() => setOpen((o) => !o)}>
+        <span>📝 Questions</span>
+        <span className="qpanel-toggle-meta">
+          {activeQ ? <span className="qpanel-active-id">{activeQ.id}</span> : "Select a question"}
+          <span className="qpanel-arrow">{open ? "▲" : "▼"}</span>
+        </span>
+      </button>
+
+      {activeQ && (
+        <div className="qpanel-current">
+          <span className="qbadge">{activeQ.id}</span>
+          <span className="qtext">{activeQ.text}</span>
+          <button className="qclear" onClick={handleClear} title="Clear">✕</button>
+        </div>
+      )}
+
+      {activeQ && (
+        <div className="qanswer-bar">
+          <button
+            className={`qanswer-toggle ${showAnswer ? "qanswer-toggle--open" : ""}`}
+            onClick={() => setShowAnswer((s) => !s)}
+          >
+            {showAnswer ? "🙈 Hide Answer" : "💡 Show Answer"}
+          </button>
+          {showAnswer && (
+            <button className={`qanswer-copy ${copied ? "qanswer-copy--done" : ""}`} onClick={copyAnswer}>
+              {copied ? "✓ Copied" : "⧉ Copy"}
+            </button>
+          )}
+        </div>
+      )}
+
+      {activeQ && showAnswer && (
+        <pre className="qanswer-code">{activeQ.answer}</pre>
+      )}
+
+      {open && (
+        <div className="qpanel-dropdown">
+          <input
+            className="qsearch"
+            placeholder="Search questions..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoFocus
+          />
+          <div className="qlist">
+            {filtered.map((q) => {
+              const isActive = activeQ?.id === q.id;
+              const involvesCurrentTable = q.tables.includes(activeTable);
+              return (
+                <button
+                  key={q.id}
+                  className={`qitem ${isActive ? "qitem--active" : ""} ${involvesCurrentTable ? "qitem--related" : ""}`}
+                  onClick={() => handleSelect(q)}
+                >
+                  <span className="qitem-id">{q.id}</span>
+                  <span className="qitem-text">{q.text}</span>
+                  {involvesCurrentTable && <span className="qitem-dot" title="Uses current table" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const tableNames = Object.keys(tables);
   const [active, setActive] = useState(tableNames[0]);
   const [search, setSearch] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeQ, setActiveQ] = useState(null);
   const isMobile = useIsMobile();
 
   const filtered = tableNames.filter((t) => t.includes(search.toLowerCase()));
@@ -221,17 +338,21 @@ export default function App() {
           />
         </div>
         <nav>
-          {filtered.map((name) => (
-            <button
-              key={name}
-              className={`nav-item ${active === name ? "active" : ""}`}
-              onClick={() => selectTable(name)}
-            >
-              <span className="icon">{tableIcons[name]}</span>
-              <span className="tname">{name}</span>
-              <span className="col-count">{tables[name].columns.length}</span>
-            </button>
-          ))}
+          {filtered.map((name) => {
+            const isRelated = activeQ?.tables.includes(name);
+            return (
+              <button
+                key={name}
+                className={`nav-item ${active === name ? "active" : ""} ${isRelated ? "nav-item--related" : ""}`}
+                onClick={() => selectTable(name)}
+              >
+                <span className="icon">{tableIcons[name]}</span>
+                <span className="tname">{name}</span>
+                <span className="col-count">{tables[name].columns.length}</span>
+                {isRelated && <span className="nav-dot" />}
+              </button>
+            );
+          })}
         </nav>
         <div className="sidebar-footer">{tableNames.length} tables total</div>
       </aside>
@@ -240,6 +361,7 @@ export default function App() {
         <button className="hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
           ☰
         </button>
+        <QuestionPanel activeQ={activeQ} onSelect={setActiveQ} activeTable={active} />
         {isMobile ? <MobileCardView key={active} name={active} /> : <TableView key={active} name={active} />}
       </main>
     </div>
