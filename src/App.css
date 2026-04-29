@@ -545,6 +545,7 @@ td {
     padding: 12px 12px 0;
     background: #f1f5f9;
     min-height: 0;
+    position: relative;
   }
 
   /* ── Hamburger ── */
@@ -628,7 +629,7 @@ td {
   .mobile-scroll {
     flex: 1;
     overflow-y: auto;
-    padding: 10px 0 16px;
+    padding: 10px 0 44px;
     min-height: 0;
   }
   .mobile-scroll::-webkit-scrollbar { width: 3px; }
@@ -638,12 +639,20 @@ td {
   .mobile-cards { display: flex; flex-direction: column; gap: 10px; }
 
   .mobile-note {
-    flex-shrink: 0;
-    margin-top: 8px;
-    padding: 0 2px 8px;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
+    margin: 0;
+    padding: 6px 10px;
     text-align: center;
     font-size: 11px;
     color: #94a3b8;
+    background: rgba(241, 245, 249, 0.96);
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    box-shadow: 0 1px 4px #00000010;
+    backdrop-filter: blur(8px);
   }
 
   .mobile-card {
