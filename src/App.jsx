@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { tables, tableIcons, statusColors, tableKeys, tableTypes, questions } from "./data";
 import "./App.css";
 
@@ -199,6 +199,7 @@ function QuestionPanel({ activeQ, onSelect, activeTable }) {
   const [search, setSearch] = useState("");
   const [showAnswer, setShowAnswer] = useState(false);
   const [copied, setCopied] = useState(false);
+  const panelRef = useRef(null);
 
   function handleSelect(q) {
     onSelect(q);
@@ -234,13 +235,35 @@ function QuestionPanel({ activeQ, onSelect, activeTable }) {
     document.body.removeChild(el);
   }
 
+  useEffect(() => {
+    function handleOutsideClick(event) {
+      if (!open) return;
+      if (panelRef.current && !panelRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
+  }, [open]);
+
   const filtered = questions.filter(
     (q) => q.text.toLowerCase().includes(search.toLowerCase()) || q.id.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="qpanel">
-      <button className="qpanel-toggle" onClick={() => setOpen((o) => !o)}>
+    <div className="qpanel" ref={panelRef}>
+      <button
+        className="qpanel-toggle"
+        onClick={() => {
+          setOpen((o) => !o);
+          setShowAnswer(false);
+        }}
+      >
         <span>📝 Questions</span>
         <span className="qpanel-toggle-meta">
           {activeQ ? <span className="qpanel-active-id">{activeQ.id}</span> : "Select a question"}
@@ -286,7 +309,7 @@ function QuestionPanel({ activeQ, onSelect, activeTable }) {
             autoFocus
           />
           <div className="qlist">
-            {filtered.map((q) => {
+          {filtered.map((q) => {
               const isActive = activeQ?.id === q.id;
               const involvesCurrentTable = q.tables.includes(activeTable);
               return (
