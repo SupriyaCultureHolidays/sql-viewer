@@ -331,8 +331,8 @@ td {
 
 /* ── NAV RELATED HIGHLIGHT ── */
 .nav-item--related {
-  background: #7c3aed11;
-  border-left: 2px solid #7c3aed66;
+  background: transparent;
+  border-left: 2px solid transparent;
 }
 .nav-item--related .tname { color: #c4b5fd; }
 .nav-dot {
@@ -524,7 +524,7 @@ td {
   .nav-item.active .col-count { background: #ddd6fe; color: #6d28d9; }
   .col-count { background: #e2e8f0; color: #475569; font-weight: 600; }
   .sidebar-footer { color: #94a3b8; border-top: 1px solid #e2e8f0; }
-  .nav-item--related { background: #ede9fe; border-left: 2px solid #7c3aed; }
+  .nav-item--related { background: transparent; border-left: 2px solid transparent; }
   .nav-item--related .tname { color: #6d28d9; }
 
   /* ── Overlay ── */
