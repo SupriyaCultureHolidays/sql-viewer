@@ -605,6 +605,10 @@ td {
     border: 1px solid #334155;
     color: #a78bfa;
     font-size: 11.5px;
+    max-height: 28vh;
+    overflow-y: auto;
+    overflow-x: auto;
+    overscroll-behavior: contain;
   }
 
   /* ── Table name bar (fixed) ── */
