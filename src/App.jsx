@@ -195,12 +195,23 @@ function useIsMobile() {
   return mobile;
 }
 
-function QuestionPanel({ activeQ, onSelect, activeTable }) {
+function QuestionPanel({ activeQ, onSelect }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [showAnswer, setShowAnswer] = useState(false);
   const [copied, setCopied] = useState(false);
   const panelRef = useRef(null);
+  const [solvedIds, setSolvedIds] = useState([]);
+
+  useEffect(() => {
+    localStorage.removeItem("solvedQuestionIds");
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("solvedQuestionIds", JSON.stringify(solvedIds));
+  }, [solvedIds]);
+
+  const isSolved = activeQ ? solvedIds.includes(activeQ.id) : false;
 
   function handleSelect(q) {
     onSelect(q);
@@ -212,6 +223,15 @@ function QuestionPanel({ activeQ, onSelect, activeTable }) {
   function handleClear() {
     onSelect(null);
     setShowAnswer(false);
+  }
+
+  function toggleSolved() {
+    if (!activeQ) return;
+    setSolvedIds((current) =>
+      current.includes(activeQ.id)
+        ? current.filter((id) => id !== activeQ.id)
+        : [...current, activeQ.id]
+    );
   }
 
   function copyAnswer() {
@@ -275,7 +295,13 @@ function QuestionPanel({ activeQ, onSelect, activeTable }) {
       {activeQ && (
         <div className="qpanel-current">
           <span className="qbadge">{activeQ.id}</span>
-          <span className="qtext">{activeQ.text}</span>
+          <span className="qtext">
+            {activeQ.text}
+            <span
+              className={`qhead-dot ${isSolved ? "qhead-dot--solved" : "qhead-dot--unsolved"}`}
+              title={isSolved ? "Solved" : "Not solved yet"}
+            />
+          </span>
           <button className="qclear" onClick={handleClear} title="Clear">✕</button>
         </div>
       )}
@@ -293,6 +319,12 @@ function QuestionPanel({ activeQ, onSelect, activeTable }) {
               {copied ? "✓ Copied" : "⧉ Copy"}
             </button>
           )}
+          <button
+            className={`qsolve-toggle ${isSolved ? "qsolve-toggle--done" : ""}`}
+            onClick={toggleSolved}
+          >
+            {isSolved ? "Mark Unsolved" : "Mark Solved"}
+          </button>
         </div>
       )}
 
@@ -309,19 +341,26 @@ function QuestionPanel({ activeQ, onSelect, activeTable }) {
             onChange={(e) => setSearch(e.target.value)}
             autoFocus
           />
+          <div className="qlegend">
+            <span><span className="qlegend-dot qlegend-dot--solved" /> Solved</span>
+            <span><span className="qlegend-dot qlegend-dot--unsolved" /> Not solved</span>
+          </div>
           <div className="qlist">
-          {filtered.map((q) => {
+            {filtered.map((q) => {
               const isActive = activeQ?.id === q.id;
-              const involvesCurrentTable = q.tables.includes(activeTable);
+              const isSolved = solvedIds.includes(q.id);
               return (
                 <button
                   key={q.id}
-                  className={`qitem ${isActive ? "qitem--active" : ""} ${involvesCurrentTable ? "qitem--related" : ""}`}
+                  className={`qitem ${isActive ? "qitem--active" : ""}`}
                   onClick={() => handleSelect(q)}
                 >
                   <span className="qitem-id">{q.id}</span>
                   <span className="qitem-text">{q.text}</span>
-                  {involvesCurrentTable && <span className="qitem-dot" title="Uses current table" />}
+                  <span
+                    className={`qitem-dot ${isSolved ? "qitem-dot--solved" : "qitem-dot--unsolved"}`}
+                    title={isSolved ? "Solved" : "Not solved yet"}
+                  />
                 </button>
               );
             })}
@@ -385,7 +424,7 @@ export default function App() {
         <button className="hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
           ☰
         </button>
-        <QuestionPanel activeQ={activeQ} onSelect={setActiveQ} activeTable={active} />
+        <QuestionPanel activeQ={activeQ} onSelect={setActiveQ} />
         {isMobile ? <MobileCardView key={active} name={active} /> : <TableView key={active} name={active} />}
       </main>
     </div>
