@@ -637,6 +637,15 @@ td {
   /* ── Cards ── */
   .mobile-cards { display: flex; flex-direction: column; gap: 10px; }
 
+  .mobile-note {
+    flex-shrink: 0;
+    margin-top: 8px;
+    padding: 0 2px 8px;
+    text-align: center;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
   .mobile-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;

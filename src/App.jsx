@@ -68,8 +68,9 @@ function MobileCardView({ name }) {
             </div>
           ))}
         </div>
-        <p className="note">⚡ {rows.length} sample rows</p>
       </div>
+
+      <p className="note mobile-note">⚡ {rows.length} sample rows</p>
     </>
   );
 }
