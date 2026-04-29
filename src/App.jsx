@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { tables, tableIcons, statusColors, tableKeys, tableTypes, questions } from "./data";
+import { tables, tableIcons, statusColors, tableKeys, tableTypes, questions, syntaxTopics } from "./data";
 import { setupSql } from "./setupSql";
 import "./App.css";
 
@@ -372,6 +372,61 @@ function QuestionPanel({ activeQ, onSelect }) {
   );
 }
 
+function SyntaxView() {
+  const [activeTopic, setActiveTopic] = useState(syntaxTopics[0].id);
+  const [copiedIdx, setCopiedIdx] = useState(null);
+  const topic = syntaxTopics.find((t) => t.id === activeTopic);
+
+  function copy(text, idx) {
+    navigator.clipboard?.writeText(text) ?? (() => {
+      const el = document.createElement("textarea");
+      el.value = text; el.style.cssText = "position:fixed;opacity:0";
+      document.body.appendChild(el); el.select();
+      document.execCommand("copy"); document.body.removeChild(el);
+    })();
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 1500);
+  }
+
+  return (
+    <div className="syntax-view">
+      <div className="syntax-topics">
+        {syntaxTopics.map((t) => (
+          <button
+            key={t.id}
+            className={`syntax-topic-btn ${activeTopic === t.id ? "active" : ""}`}
+            onClick={() => setActiveTopic(t.id)}
+          >
+            <span>{t.icon}</span> {t.title}
+          </button>
+        ))}
+      </div>
+      <div className="syntax-content">
+        <div className="syntax-section-label">Syntax</div>
+        <div className="syntax-code-wrap">
+          <pre className="syntax-code">{topic.syntax}</pre>
+          <button className={`syntax-copy-btn ${copiedIdx === -1 ? "copied" : ""}`} onClick={() => copy(topic.syntax, -1)}>
+            {copiedIdx === -1 ? "✓" : "⧉"}
+          </button>
+        </div>
+        {topic.examples.length > 0 && (
+          <>
+            <div className="syntax-section-label" style={{ marginTop: 18 }}>Examples</div>
+            {topic.examples.map((ex, i) => (
+              <div key={i} className="syntax-code-wrap">
+                <pre className="syntax-code syntax-example">{ex}</pre>
+                <button className={`syntax-copy-btn ${copiedIdx === i ? "copied" : ""}`} onClick={() => copy(ex, i)}>
+                  {copiedIdx === i ? "✓" : "⧉"}
+                </button>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const tableNames = Object.keys(tables);
   const [active, setActive] = useState(tableNames[0]);
@@ -379,6 +434,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeQ, setActiveQ] = useState(null);
   const [setupCopied, setSetupCopied] = useState(false);
+  const [sidebarSection, setSidebarSection] = useState("tables"); // "tables" | "syntax"
   const isMobile = useIsMobile();
 
   const filtered = tableNames.filter((t) => t.includes(search.toLowerCase()));
@@ -415,30 +471,48 @@ export default function App() {
       <aside className={`sidebar ${sidebarOpen ? "sidebar--open" : ""}`}>
         <div className="sidebar-top">
           <div className="brand">🗄️ ECOMMERCE DB</div>
-          <input
-            className="search"
-            placeholder="Search tables..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <div className="sidebar-tabs">
+            <button className={`sidebar-tab ${sidebarSection === "tables" ? "active" : ""}`} onClick={() => setSidebarSection("tables")}>Tables</button>
+            <button className={`sidebar-tab ${sidebarSection === "syntax" ? "active" : ""}`} onClick={() => { setSidebarSection("syntax"); setSidebarOpen(false); }}>Syntax</button>
+          </div>
+          {sidebarSection === "tables" && (
+            <input
+              className="search"
+              placeholder="Search tables..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          )}
         </div>
-        <nav>
-          {filtered.map((name) => {
-            const isRelated = activeQ?.tables.includes(name);
-            return (
-              <button
-                key={name}
-                className={`nav-item ${active === name ? "active" : ""} ${isRelated ? "nav-item--related" : ""}`}
-                onClick={() => selectTable(name)}
-              >
-                <span className="icon">{tableIcons[name]}</span>
-                <span className="tname">{name}</span>
-                <span className="col-count">{tables[name].columns.length}</span>
-                {isRelated && <span className="nav-dot" />}
+        {sidebarSection === "tables" && (
+          <nav>
+            {filtered.map((name) => {
+              const isRelated = activeQ?.tables.includes(name);
+              return (
+                <button
+                  key={name}
+                  className={`nav-item ${active === name && sidebarSection === "tables" ? "active" : ""} ${isRelated ? "nav-item--related" : ""}`}
+                  onClick={() => selectTable(name)}
+                >
+                  <span className="icon">{tableIcons[name]}</span>
+                  <span className="tname">{name}</span>
+                  <span className="col-count">{tables[name].columns.length}</span>
+                  {isRelated && <span className="nav-dot" />}
+                </button>
+              );
+            })}
+          </nav>
+        )}
+        {sidebarSection === "syntax" && (
+          <nav>
+            {syntaxTopics.map((t) => (
+              <button key={t.id} className="nav-item" onClick={() => setSidebarOpen(false)}>
+                <span className="icon">{t.icon}</span>
+                <span className="tname">{t.title}</span>
               </button>
-            );
-          })}
-        </nav>
+            ))}
+          </nav>
+        )}
         <div className="sidebar-footer">{tableNames.length} tables total</div>
         <div className="source-panel">
           <button className="source-row" onClick={copySetupCode} title="Copy full SQL setup script">
@@ -458,7 +532,10 @@ export default function App() {
           ☰
         </button>
         <QuestionPanel activeQ={activeQ} onSelect={setActiveQ} />
-        {isMobile ? <MobileCardView key={active} name={active} /> : <TableView key={active} name={active} />}
+        {sidebarSection === "syntax"
+          ? <SyntaxView />
+          : isMobile ? <MobileCardView key={active} name={active} /> : <TableView key={active} name={active} />
+        }
       </main>
     </div>
   );

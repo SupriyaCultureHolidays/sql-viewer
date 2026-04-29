@@ -210,6 +210,246 @@ export const tableKeys = {
   reviews:           { pk: "id", fk: { product_id: "products.id", user_id: "users.id", order_id: "orders.id" } },
 };
 
+export const syntaxTopics = [
+  {
+    id: "select",
+    title: "SELECT",
+    icon: "🔍",
+    syntax: `SELECT column1, column2
+FROM table_name
+WHERE condition
+ORDER BY column ASC|DESC
+LIMIT n;`,
+    examples: [
+      `SELECT * FROM users;`,
+      `SELECT name, email FROM users WHERE status = 'active';`,
+      `SELECT * FROM products ORDER BY price DESC LIMIT 10;`,
+    ],
+  },
+  {
+    id: "where",
+    title: "WHERE & Operators",
+    icon: "🔎",
+    syntax: `WHERE column = value
+WHERE column != value
+WHERE column > value
+WHERE column BETWEEN a AND b
+WHERE column IN (v1, v2)
+WHERE column LIKE '%pattern%'
+WHERE column IS NULL
+WHERE cond1 AND cond2
+WHERE cond1 OR cond2`,
+    examples: [
+      `SELECT * FROM orders WHERE total_amount BETWEEN 500 AND 5000;`,
+      `SELECT * FROM users WHERE status IN ('active', 'pending');`,
+      `SELECT * FROM products WHERE title LIKE '%phone%';`,
+    ],
+  },
+  {
+    id: "joins",
+    title: "JOINs",
+    icon: "🔗",
+    syntax: `-- INNER JOIN
+SELECT * FROM a
+INNER JOIN b ON a.id = b.a_id;
+
+-- LEFT JOIN
+SELECT * FROM a
+LEFT JOIN b ON a.id = b.a_id;
+
+-- RIGHT JOIN
+SELECT * FROM a
+RIGHT JOIN b ON a.id = b.a_id;`,
+    examples: [
+      `SELECT u.name, o.order_number
+FROM users u
+INNER JOIN orders o ON u.id = o.user_id;`,
+      `SELECT p.title, c.name AS category
+FROM products p
+LEFT JOIN categories c ON p.category_id = c.id;`,
+    ],
+  },
+  {
+    id: "aggregate",
+    title: "Aggregate Functions",
+    icon: "📊",
+    syntax: `SELECT COUNT(*) FROM table;
+SELECT SUM(column) FROM table;
+SELECT AVG(column) FROM table;
+SELECT MIN(column) FROM table;
+SELECT MAX(column) FROM table;
+
+SELECT column, COUNT(*)
+FROM table
+GROUP BY column
+HAVING COUNT(*) > n;`,
+    examples: [
+      `SELECT COUNT(*) FROM orders WHERE order_status = 'delivered';`,
+      `SELECT vendor_id, SUM(total_price) AS revenue
+FROM order_items
+GROUP BY vendor_id
+ORDER BY revenue DESC;`,
+      `SELECT rating, COUNT(*) AS total
+FROM reviews
+GROUP BY rating
+HAVING COUNT(*) > 5;`,
+    ],
+  },
+  {
+    id: "subquery",
+    title: "Subqueries",
+    icon: "🪆",
+    syntax: `-- In WHERE
+SELECT * FROM table
+WHERE col IN (SELECT col FROM other);
+
+-- In FROM (derived table)
+SELECT * FROM
+  (SELECT col FROM table WHERE cond) AS sub;
+
+-- Correlated
+SELECT * FROM a
+WHERE col > (SELECT AVG(col) FROM a);`,
+    examples: [
+      `SELECT * FROM products
+WHERE id IN (SELECT product_id FROM order_items WHERE quantity > 5);`,
+      `SELECT * FROM users
+WHERE id NOT IN (SELECT user_id FROM orders);`,
+    ],
+  },
+  {
+    id: "insert",
+    title: "INSERT",
+    icon: "➕",
+    syntax: `INSERT INTO table (col1, col2)
+VALUES (val1, val2);
+
+-- Multiple rows
+INSERT INTO table (col1, col2)
+VALUES (v1, v2), (v3, v4);`,
+    examples: [
+      `INSERT INTO users (name, email, status)
+VALUES ('John Doe', 'john@example.com', 'active');`,
+      `INSERT INTO cart_items (cart_id, product_id, quantity, unit_price)
+VALUES (1, 5, 2, 999.00);`,
+    ],
+  },
+  {
+    id: "update",
+    title: "UPDATE",
+    icon: "✏️",
+    syntax: `UPDATE table
+SET col1 = val1, col2 = val2
+WHERE condition;`,
+    examples: [
+      `UPDATE products SET status = 'inactive' WHERE id = 10;`,
+      `UPDATE orders
+SET order_status = 'shipped'
+WHERE order_status = 'processing' AND created_at < NOW() - INTERVAL 2 DAY;`,
+    ],
+  },
+  {
+    id: "delete",
+    title: "DELETE",
+    icon: "🗑️",
+    syntax: `DELETE FROM table WHERE condition;
+
+-- Delete all rows (keep structure)
+DELETE FROM table;
+
+-- Truncate (faster, resets auto-increment)
+TRUNCATE TABLE table;`,
+    examples: [
+      `DELETE FROM cart_items WHERE cart_id = 5;`,
+      `DELETE FROM reviews WHERE status = 'rejected' AND created_at < '2024-01-01';`,
+    ],
+  },
+  {
+    id: "ddl",
+    title: "DDL (CREATE / ALTER / DROP)",
+    icon: "🏗️",
+    syntax: `-- Create table
+CREATE TABLE table_name (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  created_at DATETIME DEFAULT NOW()
+);
+
+-- Add column
+ALTER TABLE table ADD COLUMN col INT;
+
+-- Drop table
+DROP TABLE table_name;`,
+    examples: [
+      `ALTER TABLE products ADD COLUMN discount_pct DECIMAL(5,2) DEFAULT 0;`,
+      `CREATE INDEX idx_user_email ON users(email);`,
+    ],
+  },
+  {
+    id: "functions",
+    title: "String & Date Functions",
+    icon: "🛠️",
+    syntax: `-- String
+CONCAT(a, b)
+UPPER(col) / LOWER(col)
+LENGTH(col)
+SUBSTRING(col, start, len)
+TRIM(col)
+
+-- Date
+NOW() / CURDATE()
+DATE_FORMAT(col, '%Y-%m-%d')
+DATEDIFF(date1, date2)
+DATE_ADD(date, INTERVAL n DAY)
+YEAR(col) / MONTH(col) / DAY(col)`,
+    examples: [
+      `SELECT CONCAT(name, ' <', email, '>') AS contact FROM users;`,
+      `SELECT * FROM orders
+WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY);`,
+      `SELECT DATEDIFF(NOW(), created_at) AS days_old FROM orders;`,
+    ],
+  },
+  {
+    id: "window",
+    title: "Window Functions",
+    icon: "🪟",
+    syntax: `SELECT col,
+  ROW_NUMBER() OVER (PARTITION BY col ORDER BY col2) AS rn,
+  RANK()       OVER (ORDER BY col DESC) AS rnk,
+  SUM(col)     OVER (PARTITION BY col) AS running_sum,
+  LAG(col, 1)  OVER (ORDER BY col2) AS prev_val
+FROM table;`,
+    examples: [
+      `SELECT user_id, order_number,
+  ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at) AS order_seq
+FROM orders;`,
+      `SELECT product_id, rating,
+  RANK() OVER (ORDER BY rating DESC) AS rank
+FROM reviews;`,
+    ],
+  },
+  {
+    id: "cte",
+    title: "CTE (WITH)",
+    icon: "📎",
+    syntax: `WITH cte_name AS (
+  SELECT col FROM table WHERE cond
+)
+SELECT * FROM cte_name;`,
+    examples: [
+      `WITH top_vendors AS (
+  SELECT vendor_id, SUM(total_price) AS revenue
+  FROM order_items
+  GROUP BY vendor_id
+  HAVING revenue > 100000
+)
+SELECT v.store_name, t.revenue
+FROM vendors v
+JOIN top_vendors t ON v.id = t.vendor_id;`,
+    ],
+  },
+];
+
 export const tableIcons = {
   roles: "🔐",
   users: "👤",
