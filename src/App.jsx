@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { tables, tableIcons, statusColors, tableKeys, tableTypes, questions, syntaxTopics } from "./data";
+﻿import { useEffect, useRef, useState } from "react";
+import { tables, tableIcons, statusColors, tableKeys, tableTypes, questions, syntaxTopics, executionOrder } from "./data";
 import { setupSql } from "./setupSql";
 import "./App.css";
 
@@ -188,11 +188,11 @@ function TableView({ name }) {
 
 function useIsMobile() {
   const [mobile, setMobile] = useState(() => window.innerWidth <= 600);
-  useState(() => {
+  useEffect(() => {
     const fn = () => setMobile(window.innerWidth <= 600);
     window.addEventListener("resize", fn);
     return () => window.removeEventListener("resize", fn);
-  });
+  }, []);
   return mobile;
 }
 
@@ -296,13 +296,21 @@ function QuestionPanel({ activeQ, onSelect }) {
       {activeQ && (
         <div className="qpanel-current">
           <span className="qbadge">{activeQ.id}</span>
-          <span className="qtext">
-            {activeQ.text}
-            <span
-              className={`qhead-dot ${isSolved ? "qhead-dot--solved" : "qhead-dot--unsolved"}`}
-              title={isSolved ? "Solved" : "Not solved yet"}
-            />
-          </span>
+          <div className="qtext-wrap">
+            <span className="qtext">
+              {activeQ.text}
+              <span
+                className={`qhead-dot ${isSolved ? "qhead-dot--solved" : "qhead-dot--unsolved"}`}
+                title={isSolved ? "Solved" : "Not solved yet"}
+              />
+            </span>
+            {activeQ.note && (
+              <div className="qnote">
+                <span className="qnote-label">Logical execution order in SQL:</span>
+                <div className="qnote-steps">{activeQ.note.map((step, i) => (<span key={step} className="qnote-step">{step}{i < activeQ.note.length - 1 && <span className="qnote-arrow"> {String.fromCharCode(8594)} </span>}</span>))}</div>
+              </div>
+            )}
+          </div>
           <button className="qclear" onClick={handleClear} title="Clear">✕</button>
         </div>
       )}
@@ -372,6 +380,36 @@ function QuestionPanel({ activeQ, onSelect }) {
   );
 }
 
+function ExecutionOrderView() {
+  const [openIdx, setOpenIdx] = useState(null);
+  return (
+    <div className="exec-order">
+      <div className="exec-order-title">🧠 Logical Execution Order in SQL</div>
+      <div className="exec-order-chain">
+        {executionOrder.map((item, i) => (
+          <span key={item.step} className="exec-chain-item">
+            <button
+              className={`exec-step-btn ${openIdx === i ? "active" : ""}`}
+              onClick={() => setOpenIdx(openIdx === i ? null : i)}
+            >
+              <span className="exec-step-num">{i + 1}</span>
+              {item.step}
+              <span className="exec-step-arrow">{openIdx === i ? "▲" : "▼"}</span>
+            </button>
+            {i < executionOrder.length - 1 && <span className="exec-chain-arrow">→</span>}
+          </span>
+        ))}
+      </div>
+      {openIdx !== null && (
+        <div className="exec-desc">
+          <span className="exec-desc-step">{executionOrder[openIdx].step}</span>
+          <span className="exec-desc-text">{executionOrder[openIdx].desc}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SyntaxView({ activeTopic, onChangeTopic }) {
   const [copiedIdx, setCopiedIdx] = useState(null);
   const topic = syntaxTopics.find((t) => t.id === activeTopic) ?? syntaxTopics[0];
@@ -401,6 +439,10 @@ function SyntaxView({ activeTopic, onChangeTopic }) {
         ))}
       </div>
       <div className="syntax-content">
+        {topic.type === "execution-order" ? (
+          <ExecutionOrderView />
+        ) : (
+          <>
         <div className="syntax-section-label">Syntax</div>
         <div className="syntax-code-wrap">
           <pre className="syntax-code">{topic.syntax}</pre>
@@ -419,6 +461,8 @@ function SyntaxView({ activeTopic, onChangeTopic }) {
                 </button>
               </div>
             ))}
+          </>
+        )}
           </>
         )}
       </div>
@@ -536,7 +580,7 @@ export default function App() {
         </div>
       </aside>
 
-      <main className="main">
+      <main className={`main${sidebarSection === "syntax" ? " main--syntax" : ""}`}>
         <button className="hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
           ☰
         </button>

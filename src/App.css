@@ -1,4 +1,4 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
+﻿* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
@@ -609,11 +609,46 @@ td {
   padding: 2px 8px;
   border-radius: 10px;
 }
-.qtext {
+.qtext-wrap {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.qtext {
   font-size: 13px;
   color: #e2e8f0;
   line-height: 1.5;
+}
+.qnote {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.qnote-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #475569;
+}
+.qnote-steps {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+}
+.qnote-step {
+  font-size: 10px;
+  color: #7c3aed;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.qnote-arrow {
+  font-size: 10px;
+  color: #475569;
 }
 .qhead-dot {
   display: inline-block;
@@ -1055,7 +1090,7 @@ td {
   display: flex;
   gap: 20px;
   max-width: 900px;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 160px);  min-height: 0;
 }
 
 .syntax-topics {
@@ -1063,7 +1098,7 @@ td {
   flex-direction: column;
   gap: 2px;
   min-width: 180px;
-  overflow-y: auto;
+  overflow-y: auto;  flex-shrink: 0;
 }
 .syntax-topics::-webkit-scrollbar { width: 4px; }
 .syntax-topics::-webkit-scrollbar-thumb { background: #1e2535; border-radius: 4px; }
@@ -1172,4 +1207,160 @@ td {
   .syntax-copy-btn { background: #0f172a; border-color: #334155; color: #64748b; }
   .syntax-copy-btn:hover { border-color: #7c3aed; color: #a78bfa; }
   .syntax-section-label { color: #64748b; }
+}
+
+/* ── EXECUTION ORDER VIEW ── */
+.exec-order {
+  padding: 4px 0;
+}
+.exec-order-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #475569;
+  margin-bottom: 14px;
+}
+.exec-order-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.exec-chain-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.exec-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid #1e2535;
+  background: #161b27;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.exec-step-btn:hover { border-color: #7c3aed; color: #c4b5fd; background: #7c3aed11; }
+.exec-step-btn.active { border-color: #7c3aed; color: #c4b5fd; background: #7c3aed22; }
+.exec-step-num {
+  font-size: 9px;
+  background: #1e2535;
+  color: #475569;
+  padding: 1px 5px;
+  border-radius: 999px;
+  font-family: system-ui, sans-serif;
+}
+.exec-step-btn.active .exec-step-num { background: #7c3aed33; color: #a78bfa; }
+.exec-step-arrow { font-size: 8px; color: #475569; }
+.exec-chain-arrow {
+  font-size: 12px;
+  color: #334155;
+}
+.exec-desc {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #7c3aed11;
+  border: 1px solid #7c3aed33;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+.exec-desc-step {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: #a78bfa;
+  flex-shrink: 0;
+}
+.exec-desc-text {
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+/* ── SYNTAX SCROLL FIX (mobile) ── */
+@media (max-width: 600px) {
+  .syntax-view {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
+    gap: 10px;
+  }
+  .syntax-topics {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: unset;
+    overflow-y: unset;
+    flex-shrink: unset;
+    gap: 4px;
+  }
+  .syntax-content {
+    overflow-y: visible;
+    height: auto;
+    padding-right: 0;
+  }
+  .syntax-code {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+  }
+}
+
+/* ── SYNTAX SECTION MOBILE SCROLL FIX ── */
+@media (max-width: 600px) {
+  .main--syntax {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .main--syntax .syntax-view {
+    padding-bottom: 24px;
+  }
+}
+
+/* ── EXECUTION ORDER MOBILE LIGHT THEME ── */
+@media (max-width: 600px) {
+  .exec-order-title {
+    color: #64748b;
+  }
+  .exec-step-btn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+  }
+  .exec-step-btn:hover {
+    border-color: #7c3aed;
+    color: #7c3aed;
+    background: #ede9fe;
+  }
+  .exec-step-btn.active {
+    border-color: #7c3aed;
+    color: #6d28d9;
+    background: #ede9fe;
+  }
+  .exec-step-num {
+    background: #e2e8f0;
+    color: #64748b;
+  }
+  .exec-step-btn.active .exec-step-num {
+    background: #ddd6fe;
+    color: #6d28d9;
+  }
+  .exec-step-arrow { color: #94a3b8; }
+  .exec-chain-arrow { color: #94a3b8; }
+  .exec-desc {
+    background: #ede9fe;
+    border: 1px solid #ddd6fe;
+  }
+  .exec-desc-step { color: #6d28d9; }
+  .exec-desc-text { color: #1e293b; }
 }

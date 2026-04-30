@@ -210,7 +210,26 @@ export const tableKeys = {
   reviews:           { pk: "id", fk: { product_id: "products.id", user_id: "users.id", order_id: "orders.id" } },
 };
 
+export const executionOrder = [
+  { step: "FROM",     desc: "Choose which table(s) to read data from." },
+  { step: "JOIN",     desc: "Combine rows from multiple tables based on a condition." },
+  { step: "WHERE",    desc: "Filter rows before any grouping happens." },
+  { step: "GROUP BY", desc: "Group filtered rows by one or more columns." },
+  { step: "HAVING",   desc: "Filter groups (like WHERE, but after GROUP BY)." },
+  { step: "SELECT",   desc: "Choose which columns (or expressions) to return." },
+  { step: "ORDER BY", desc: "Sort the final result set." },
+  { step: "LIMIT",    desc: "Restrict how many rows are returned." },
+];
+
 export const syntaxTopics = [
+  {
+    id: "rules",
+    title: "Rules",
+    icon: "🧠",
+    type: "execution-order",
+    syntax: "",
+    examples: [],
+  },
   {
     id: "select",
     title: "SELECT",
@@ -498,6 +517,7 @@ export const questions = [
   { id: "Q15", text: "List all orders that used a coupon_code.", tables: ["orders"],
     answer: `SELECT *\nFROM orders\nWHERE coupon_code IS NOT NULL;` },
   { id: "Q16", text: "Retrieve the 10 most recently created products.", tables: ["products"],
+    note: ["FROM", "JOIN", "WHERE", "GROUP BY", "HAVING", "SELECT", "ORDER BY", "LIMIT"],
     answer: `SELECT *\nFROM products\nORDER BY created_at DESC\nLIMIT 10;` },
   { id: "Q17", text: "Find all vendors located in the city 'Bangalore'.", tables: ["vendors"],
     answer: `SELECT *\nFROM vendors\nWHERE city = 'Bangalore';` },
