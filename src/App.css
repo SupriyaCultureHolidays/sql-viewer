@@ -524,15 +524,16 @@ td {
 .qnext-btn {
   padding: 5px 14px;
   border-radius: 6px;
-  border: 1px solid #f59e0b55;
-  background: #f59e0b11;
-  color: #fbbf24;
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 }
-.qnext-btn:hover { border-color: #f59e0b; background: #f59e0b22; color: #fde68a; }
+.qnext-btn:hover { background: #1d4ed8; color: #ffffff; }
 
 .qanswer-code {
   margin-top: 6px;
@@ -933,6 +934,8 @@ td {
   }
   .qsolve-toggle:hover { border-color: #3b82f6; color: #2563eb; }
   .qsolve-toggle--done { border-color: #bfdbfe; color: #2563eb; background: #dbeafe; }
+  .qnext-btn { background: #2563eb; color: #ffffff; border: none; }
+  .qnext-btn:hover { background: #1d4ed8; }
   .qanswer-code {
     background: #1e293b;
     border: 1px solid #334155;
