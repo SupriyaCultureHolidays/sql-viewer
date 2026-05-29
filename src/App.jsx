@@ -203,6 +203,7 @@ function QuestionPanel({ activeQ, onSelect }) {
   const [copied, setCopied] = useState(false);
   const panelRef = useRef(null);
   const [solvedIds, setSolvedIds] = useState([]);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     localStorage.removeItem("solvedQuestionIds");
@@ -233,6 +234,14 @@ function QuestionPanel({ activeQ, onSelect }) {
         ? current.filter((id) => id !== activeQ.id)
         : [...current, activeQ.id]
     );
+  }
+
+  function handleNextQuestion() {
+    if (!activeQ) return;
+    const currentIndex = questions.findIndex((q) => q.id === activeQ.id);
+    const nextIndex = (currentIndex + 1) % questions.length;
+    onSelect(questions[nextIndex]);
+    setShowAnswer(false);
   }
 
   function copyAnswer() {
@@ -328,12 +337,18 @@ function QuestionPanel({ activeQ, onSelect }) {
               {copied ? "✓ Copied" : "⧉ Copy"}
             </button>
           )}
-          <button
-            className={`qsolve-toggle ${isSolved ? "qsolve-toggle--done" : ""}`}
-            onClick={toggleSolved}
-          >
-            {isSolved ? "Mark Unsolved" : "Mark Solved"}
-          </button>
+          {isMobile ? (
+            <button className="qnext-btn" onClick={handleNextQuestion}>
+              Next Question →
+            </button>
+          ) : (
+            <button
+              className={`qsolve-toggle ${isSolved ? "qsolve-toggle--done" : ""}`}
+              onClick={toggleSolved}
+            >
+              {isSolved ? "Mark Unsolved" : "Mark Solved"}
+            </button>
+          )}
         </div>
       )}
 

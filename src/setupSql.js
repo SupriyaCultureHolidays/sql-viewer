@@ -428,7 +428,7 @@ BEGIN
       ROUND(10 + RAND() * 10, 2),
       ROUND(3.0 + RAND() * 2.0, 2),
       v_status,
-      DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 365) DAY));
+      IF(v_status = 'active', DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 365) DAY), NULL));
     SET i = i + 1;
   END WHILE;
 
@@ -522,7 +522,7 @@ BEGIN
     SET v_order_status = ELT(1 + (i MOD 7),
       'pending','confirmed','processing','shipped','delivered','cancelled','refunded');
     SET v_pay_status = ELT(1 + (i MOD 5),
-      'pending','paid','paid','failed','refunded');
+      'pending','paid','failed','refunded','partially_refunded');
     INSERT INTO orders (user_id, order_number, order_status, payment_status,
       total_amount, subtotal, shipping_amount, discount_amount, tax_amount,
       coupon_code, created_at, confirmed_at, delivered_at)
@@ -586,17 +586,30 @@ BEGIN
       'razorpay','paytm','stripe','cashfree');
     INSERT IGNORE INTO payments
       (order_id, user_id, transaction_id, payment_method, payment_gateway,
-       amount, status, failure_reason, created_at)
+       amount, status, failure_reason, refund_amount, refunded_at, created_at)
     SELECT
       o.id, o.user_id,
       CONCAT('TXN-', MD5(CONCAT(o.id, i, RAND()))),
       v_method, v_gateway,
       o.total_amount,
-      o.payment_status,
+      CASE o.payment_status
+        WHEN 'paid' THEN 'success'
+        ELSE o.payment_status
+      END,
       CASE WHEN o.payment_status = 'failed' THEN
         ELT(1 + (i MOD 5),
           'Insufficient funds','Card declined','Network timeout','Invalid OTP','Bank server error')
       ELSE NULL END,
+      CASE
+        WHEN o.payment_status = 'refunded'          THEN o.total_amount
+        WHEN o.payment_status = 'partially_refunded' THEN ROUND(o.total_amount * 0.5, 2)
+        ELSE 0.00
+      END,
+      CASE
+        WHEN o.payment_status IN ('refunded','partially_refunded')
+          THEN DATE_ADD(o.created_at, INTERVAL 7 DAY)
+        ELSE NULL
+      END,
       DATE_ADD(o.created_at, INTERVAL 2 MINUTE)
     FROM orders o WHERE o.id = i AND o.payment_status != 'pending';
     SET i = i + 1;
@@ -607,8 +620,8 @@ BEGIN
   WHILE i <= 3200 DO
     SET v_courier = ELT(1 + (i MOD 5),
       'Delhivery','Bluedart','FedEx','XpressBees','DTDC');
-    SET v_ship_status = ELT(1 + (i MOD 7),
-      'pending','packed','dispatched','in_transit','delivered','out_for_delivery','returned');
+    SET v_ship_status = ELT(1 + (i MOD 8),
+      'pending','packed','dispatched','in_transit','delivered','out_for_delivery','returned','lost');
     INSERT IGNORE INTO shipments
       (order_id, vendor_id, tracking_number, courier_partner, shipping_method,
        status, estimated_delivery_date, actual_delivery_date,
