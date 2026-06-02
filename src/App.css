@@ -521,6 +521,26 @@ td {
 .qsolve-toggle:hover { border-color: #3b82f6; color: #60a5fa; }
 .qsolve-toggle--done { border-color: #3b82f655; color: #3b82f6; background: #3b82f611; }
 
+.qnav-btns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.qprev-btn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.qprev-btn:hover { background: #1d4ed8; color: #ffffff; }
+
 .qnext-btn {
   padding: 5px 14px;
   border-radius: 6px;
@@ -934,6 +954,8 @@ td {
   }
   .qsolve-toggle:hover { border-color: #3b82f6; color: #2563eb; }
   .qsolve-toggle--done { border-color: #bfdbfe; color: #2563eb; background: #dbeafe; }
+  .qprev-btn { background: #2563eb; color: #ffffff; border: none; }
+  .qprev-btn:hover { background: #1d4ed8; }
   .qnext-btn { background: #2563eb; color: #ffffff; border: none; }
   .qnext-btn:hover { background: #1d4ed8; }
   .qanswer-code {

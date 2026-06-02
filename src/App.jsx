@@ -244,6 +244,14 @@ function QuestionPanel({ activeQ, onSelect }) {
     setShowAnswer(false);
   }
 
+  function handlePrevQuestion() {
+    if (!activeQ) return;
+    const currentIndex = questions.findIndex((q) => q.id === activeQ.id);
+    const prevIndex = (currentIndex - 1 + questions.length) % questions.length;
+    onSelect(questions[prevIndex]);
+    setShowAnswer(false);
+  }
+
   function copyAnswer() {
     const text = activeQ?.answer;
     if (!text) return;
@@ -338,9 +346,14 @@ function QuestionPanel({ activeQ, onSelect }) {
             </button>
           )}
           {isMobile ? (
-            <button className="qnext-btn" onClick={handleNextQuestion}>
-              Next Question →
-            </button>
+            <div className="qnav-btns">
+              <button className="qprev-btn" onClick={handlePrevQuestion}>
+                ← Prev
+              </button>
+              <button className="qnext-btn" onClick={handleNextQuestion}>
+                Next →
+              </button>
+            </div>
           ) : (
             <button
               className={`qsolve-toggle ${isSolved ? "qsolve-toggle--done" : ""}`}
